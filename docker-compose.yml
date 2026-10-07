@@ -1,0 +1,49 @@
+services:
+  app:
+    build:
+      context: ./app
+    ports:
+      - "8080:80"
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: shop
+      FRANKENPHP_NUM_WORKERS: ${FRANKENPHP_NUM_WORKERS:-2}
+      OTEL_PHP_AUTOLOAD_ENABLED: "true"
+      OTEL_SERVICE_NAME: frankenphp-mongo-demo
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: none
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/json
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - mongo
+      - otel-collector
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    environment:
+      GRAFANA_CLOUD_OTLP_ENDPOINT: ${GRAFANA_CLOUD_OTLP_ENDPOINT:-https://otlp-gateway-prod-us-east-0.grafana.net/otlp}
+      GRAFANA_CLOUD_INSTANCE_ID: ${GRAFANA_CLOUD_INSTANCE_ID:-}
+      GRAFANA_CLOUD_API_TOKEN: ${GRAFANA_CLOUD_API_TOKEN:-}
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
+volumes:
+  mongo-data:

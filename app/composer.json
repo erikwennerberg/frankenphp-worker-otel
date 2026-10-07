@@ -1,0 +1,28 @@
+{
+    "name": "frankenphp-worker-otel/frankenphp-otel-demo",
+    "description": "FrankenPHP + MongoDB sample app instrumented with OpenTelemetry",
+    "type": "project",
+    "require": {
+        "php": ">=8.2",
+        "ext-mongodb": "*",
+        "mongodb/mongodb": "^2.0",
+        "open-telemetry/sdk": "^1.0",
+        "open-telemetry/exporter-otlp": "^1.1",
+        "open-telemetry/opentelemetry-auto-mongodb": "^0.4",
+        "php-http/discovery": "^1.19",
+        "guzzlehttp/guzzle": "^7.8",
+        "http-interop/http-factory-guzzle": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable"
+}
